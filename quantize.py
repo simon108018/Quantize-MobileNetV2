@@ -69,98 +69,86 @@ else:
 
 
 
-# 將model轉換float16
-converter = tf.lite.TFLiteConverter.from_keras_model(model)
-converter.experimental_new_converter = True
-converter.allow_custom_ops = True
-converter.target_spec.supported_types = [tf.float16]
-converter.optimizations = [tf.lite.Optimize.DEFAULT]
-# 以下放入的data只是為了提供Converter測量轉換的範圍
-def representative_dataset_gen():
-    for input in test_data.batch(1).take(100):
-        yield [input[0]]
-converter.representative_dataset = representative_dataset_gen
-tflite_float16_model = converter.convert()
-print('已成功將model轉換\'tflite_float16_model\'')
-# 儲存tflite model
-
-tflite_models_dir = pathlib.Path("cifar10/models")
-tflite_models_dir.mkdir(exist_ok=True, parents=True)
-
-# Save the unquantized/float model:
-tflite_model_file = tflite_models_dir/"fp16_MobileNetV2.tflite"
-tflite_model_file.write_bytes(tflite_float16_model)
-print('成功生成\'fp16_MobileNetV2.tflite\'')
-
-# 將q_model轉換float16
-converter = tf.lite.TFLiteConverter.from_keras_model(q_model)
-converter.experimental_new_converter = True
-converter.allow_custom_ops = True
-converter.target_spec.supported_types = [tf.float16]
-converter.optimizations = [tf.lite.Optimize.DEFAULT]
-# 以下放入的data只是為了提供Converter測量轉換的範圍
-def representative_dataset_gen():
-    for input in test_data.batch(1).take(100):
-        yield [input[0]]
-converter.representative_dataset = representative_dataset_gen
-q_tflite_float16_model = converter.convert()
-print('已成功將model轉換\'tflite_float16_q_model\'')
-# 儲存tflite model
-
-tflite_models_dir = pathlib.Path("cifar10/models")
-tflite_models_dir.mkdir(exist_ok=True, parents=True)
-
-# Save the unquantized/float model:
-tflite_model_file = tflite_models_dir/"fp16_q_MobileNetV2.tflite"
-tflite_model_file.write_bytes(q_tflite_float16_model)
-print('成功生成\'fp16_q_MobileNetV2.tflite\'')
-
-
-
-# 將model轉換int8
-
-converter = tf.lite.TFLiteConverter.from_keras_model(model)
-converter.experimental_new_converter = True
-converter.allow_custom_ops = True
-converter.optimizations = [tf.lite.Optimize.DEFAULT]
-
-# 以下放入的data只是為了提供Converter測量轉換的範圍
-def representative_dataset_gen():
-    for input in test_data.batch(1).take(100):
-        yield [input[0]]
-converter.representative_dataset = representative_dataset_gen
-# q_tflite_model = converter.convert()
-# Ensure that if any ops can't be quantized, the converter throws an error
-# converter.target_spec.supported_ops = [tf.int8]
-converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
-# Set the input and output tensors to uint8 (APIs added in r2.3)
-converter.inference_input_type = tf.int8
-converter.inference_output_type = tf.int8
-tflite_int_model = converter.convert()
-print('成功轉換\'tflite_int_model\'')
-
-tflite_models_dir = pathlib.Path("cifar10/models")
-tflite_models_dir.mkdir(exist_ok=True, parents=True)
-
-# Save the unquantized/float model:
-tflite_model_file = tflite_models_dir/"int8_MobileNetV2.tflite"
-tflite_model_file.write_bytes(tflite_int_model)
-print('成功生成\'int8_MobileNetV2.tflite\'')
+# # 將model轉換float16
+# converter = tf.lite.TFLiteConverter.from_keras_model(model)
+# converter.experimental_new_converter = True
+# converter.allow_custom_ops = True
+# converter.target_spec.supported_types = [tf.float16]
+# converter.optimizations = [tf.lite.Optimize.DEFAULT]
+# tflite_float16_model = converter.convert()
+# print('已成功將model轉換\'tflite_float16_model\'')
+# # 儲存tflite model
+#
+# tflite_models_dir = pathlib.Path("cifar10/models")
+# tflite_models_dir.mkdir(exist_ok=True, parents=True)
+#
+# # Save the unquantized/float model:
+# tflite_model_file = tflite_models_dir/"fp16_MobileNetV2.tflite"
+# tflite_model_file.write_bytes(tflite_float16_model)
+# print('成功生成\'fp16_MobileNetV2.tflite\'')
+#
+# # 將q_model轉換float16
+# converter = tf.lite.TFLiteConverter.from_keras_model(q_model)
+# converter.experimental_new_converter = True
+# converter.allow_custom_ops = True
+# converter.target_spec.supported_types = [tf.float16]
+# converter.optimizations = [tf.lite.Optimize.DEFAULT]
+# q_tflite_float16_model = converter.convert()
+# print('已成功將model轉換\'tflite_float16_q_model\'')
+# # 儲存tflite model
+#
+# tflite_models_dir = pathlib.Path("cifar10/models")
+# tflite_models_dir.mkdir(exist_ok=True, parents=True)
+#
+# # Save the unquantized/float model:
+# tflite_model_file = tflite_models_dir/"fp16_q_MobileNetV2.tflite"
+# tflite_model_file.write_bytes(q_tflite_float16_model)
+# print('成功生成\'fp16_q_MobileNetV2.tflite\'')
+#
+#
+#
+# # 將model轉換int8
+#
+# converter = tf.lite.TFLiteConverter.from_keras_model(model)
+# converter.experimental_new_converter = True
+# converter.allow_custom_ops = True
+# converter.optimizations = [tf.lite.Optimize.DEFAULT]
+#
+# # 以下放入的data只是為了提供Converter測量轉換的範圍
+# def representative_dataset_gen():
+#     for input in test_data.take(100):
+#         yield [input[0]]
+# converter.representative_dataset = representative_dataset_gen
+# # q_tflite_model = converter.convert()
+# # Ensure that if any ops can't be quantized, the converter throws an error
+# # converter.target_spec.supported_ops = [tf.int8]
+# converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
+# # Set the input and output tensors to uint8 (APIs added in r2.3)
+# converter.inference_input_type = tf.int8
+# converter.inference_output_type = tf.int8
+# tflite_int_model = converter.convert()
+# print('成功轉換\'tflite_int_model\'')
+#
+# tflite_models_dir = pathlib.Path("cifar10/models")
+# tflite_models_dir.mkdir(exist_ok=True, parents=True)
+#
+# # Save the unquantized/float model:
+# tflite_model_file = tflite_models_dir/"int8_MobileNetV2.tflite"
+# tflite_model_file.write_bytes(tflite_int_model)
+# print('成功生成\'int8_MobileNetV2.tflite\'')
 
 
 # 將qmodel轉換int8
 
-converter = tf.lite.TFLiteConverter.from_keras_model(model)
+converter = tf.lite.TFLiteConverter.from_keras_model(q_model)
 converter.experimental_new_converter = True
 converter.allow_custom_ops = True
 converter.optimizations = [tf.lite.Optimize.DEFAULT]
-
 # 以下放入的data只是為了提供Converter測量轉換的範圍
 def representative_dataset_gen():
-    for input in test_data.batch(1).take(100):
+    for input in test_data.take(100):
         yield [input[0]]
 converter.representative_dataset = representative_dataset_gen
-# q_tflite_model = converter.convert()
 # Ensure that if any ops can't be quantized, the converter throws an error
 # converter.target_spec.supported_ops = [tf.int8]
 converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
@@ -174,6 +162,6 @@ tflite_models_dir = pathlib.Path("cifar10/models")
 tflite_models_dir.mkdir(exist_ok=True, parents=True)
 
 # Save the unquantized/float model:
-tflite_model_file = tflite_models_dir/"int8_MobileNetV2.tflite"
+tflite_model_file = tflite_models_dir/"int8_q_MobileNetV2.tflite"
 tflite_model_file.write_bytes(q_tflite_int_model)
 print('成功生成\'int8_q_MobileNetV2.tflite\'')
